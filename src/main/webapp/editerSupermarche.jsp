@@ -29,16 +29,19 @@
 							value="${supermarche.nomSupermarche}" />
 					</div>
 					<div class="form-group">
-						<label class="control-label">Type :</label> <input type="text"
-							name="type" class="form-control" value="${supermarche.type}" />
+						<label class="control-label">Localisation :</label> <input
+							type="text" name="localisation :" class="form-control"
+							value="${supermarche.loc}" />
 					</div>
 					<div class="form-group">
-						<label class="control-label">Localisation :</label> <input type="text"
-							name="localisation :" class="form-control" value="${supermarche.loc}" />
-					</div>
-					<div class="form-group">
-						<label class="control-label">Date de creation :</label> <input type="date"
-							name="date" class="form-control" value="${supermarche.dateSup}" />
+						<select name="type" class="form-control">
+							<option value="${supermarche.type.idType}" selected>${supermarche.type.nomType}</option>
+							<c:forEach items="${typModel.types}" var="typ">
+								<c:if test="${typ.idType != supermarche.type.idType}">
+									<option value="${typ.idType}">${typ.nomType}</option>
+								</c:if>
+							</c:forEach>
+						</select>
 					</div>
 					<div>
 						<button type="submit" class="btn btn-primary">Modifier</button>

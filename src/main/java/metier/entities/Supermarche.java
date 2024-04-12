@@ -5,6 +5,8 @@ import java.sql.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -13,6 +15,7 @@ import javax.persistence.Table;
 public class Supermarche implements Serializable {
 	
 	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column (name="ID_Supermarche")
 	private Long idSupermarche;
 	
@@ -27,6 +30,16 @@ public class Supermarche implements Serializable {
 	
 	@Column(name = "Date_de_creation")
 	private Date dateSup;
+	
+	private Type typ;
+
+	public Supermarche (String nomSupermarche, String loc,Type typ) {
+
+	super();
+	this.nomSupermarche = nomSupermarche;
+	this.loc = loc;
+	this.setTyp(typ);;
+	}
 	
 	public Supermarche() {
 		super();
@@ -73,6 +86,16 @@ public class Supermarche implements Serializable {
 	public String toString() {
 		return "Supermarche [nomSupermarche=" + nomSupermarche + ", type=" + type
 				+ ", loc=" + loc + ", dateSup=" + dateSup + "]";
+	}
+	
+	public Type getTyp() {
+		return typ;
+	}
+
+
+
+	public void setTyp(Type typ) {
+		this.typ= typ;
 	}
 
 }

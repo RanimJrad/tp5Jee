@@ -1,6 +1,7 @@
 package web;
 
 import java.io.IOException;
+import metier.entities.Type;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -11,16 +12,20 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.catalina.connector.Response;
 
 import dao.ISupermarcheDao;
+import dao.IType;
 import dao.SupermarcheDaoImpl;
+import dao.TypeDaoImp;
 import metier.entities.Supermarche;
 
 @WebServlet(name = "cs", urlPatterns = { "/controleur", "*.do" })
 public class ControleurServlet extends HttpServlet {
 	ISupermarcheDao metier;
+	IType metierTyp ;
 
 	@Override
 	public void init() throws ServletException {
 		metier = new SupermarcheDaoImpl();
+		metierTyp = new TypeDaoImp();
 	}
 
 	@Override
@@ -29,6 +34,7 @@ public class ControleurServlet extends HttpServlet {
 		String path = request.getServletPath();
 		if (path.equals("/index.do")) {
 			request.getRequestDispatcher("supermarches.jsp").forward(request, response);
+			
 		} else if (path.equals("/chercher.do")) {
 			String motCle = request.getParameter("motCle");
 			SupermarcheModele model = new SupermarcheModele();
@@ -39,16 +45,22 @@ public class ControleurServlet extends HttpServlet {
 			request.getRequestDispatcher("supermarches.jsp").forward(request, response);
 			
 		} else if (path.equals("/saisie.do")) {
+			
+			List<Type> typs = metierTyp.getAllTypes();
+			TypeModel model= new TypeModel();
+			model.setTypes(typs);
+			request.setAttribute("typModel", model);
+			
 			request.getRequestDispatcher("saisieSupermarche.jsp").forward(request, response);
 			
 		} else if (path.equals("/save.do") && request.getMethod().equals("POST")) {
 			String nom=request.getParameter("nom");
-			String type=request.getParameter("type");
+			Long typeId=Long.parseLong(request.getParameter("type"));
 			String localisation=request.getParameter("localisation");
-
-			Supermarche s = metier.save(new Supermarche(nom,type,localisation,null));
+			Type typ = metierTyp.getType(typeId);
+			Supermarche s = metier.save(new Supermarche(nom,localisation,typ));
 			request.setAttribute("supermarche", s);
-			request.getRequestDispatcher("confirmation.jsp").forward(request, response);
+			response.sendRedirect("chercher.do?motCle=");
 			
 		} else if (path.equals("/supprimer.do")) {
 			Long id = Long.parseLong(request.getParameter("id"));
@@ -59,22 +71,32 @@ public class ControleurServlet extends HttpServlet {
 			Long id = Long.parseLong(request.getParameter("id"));
 			Supermarche s = metier.getSupermarche(id);
 			request.setAttribute("supermarche", s);
+			
+			List<Type> typs = metierTyp.getAllTypes();
+			TypeModel model= new TypeModel();
+			model.setTypes(typs);
+			request.setAttribute("typModel", model);
+			
 			request.getRequestDispatcher("editerSupermarche.jsp").forward(request, response);
 			
 		} else if (path.equals("/update.do")) {
 			Long id = Long.parseLong(request.getParameter("id"));
 			String nom=request.getParameter("nom");
-			String type=request.getParameter("type");
 			String localisation=request.getParameter("localisation");
-
+			Long typeId=Long.parseLong(request.getParameter("type"));
+			
 			Supermarche s = new Supermarche();
 			s.setIdSupermarche(id);
 			s.setNomSupermarche(nom);
-			s.setType(type);
 			s.setLoc(localisation);
+			
+			
+			Type typ = metierTyp.getType(typeId);
+			s.setTyp(typ);
+			
+			
 			metier.updateSupermarche(s);
-			request.setAttribute("supermarche", s);
-			request.getRequestDispatcher("confirmation.jsp").forward(request, response);
+			response.sendRedirect("chercher.do?motCle=");
 		} else {
 			response.sendError(Response.SC_NOT_FOUND);
 		}
